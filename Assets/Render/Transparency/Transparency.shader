@@ -11,17 +11,16 @@
 		[Gamma] _Metallic ("Metallic", Range(0, 1)) = 0
 		_Smoothness ("Smoothness", Range(0, 1)) = 0.1
 
-		_DetailTex ("Detail Albedo", 2D) = "gray" {}
-		[NoScaleOffset] _DetailNormalMap ("Detail Normals", 2D) = "bump" {}
-		_DetailBumpScale ("Detail Bump Scale", Float) = 1
+		[NoScaleOffset] _OcclusionMap ("Occlusion", 2D) = "white" {}
+		_OcclusionStrength("Occlusion Strength", Range(0, 1)) = 1
 
 		[NoScaleOffset] _EmissionMap ("Emission", 2D) = "black" {}
 		_Emission ("Emission", Color) = (0, 0, 0)
 
-		[NoScaleOffset] _OcclusionMap ("Occlusion", 2D) = "white" {}
-		_OcclusionStrength("Occlusion Strength", Range(0, 1)) = 1
-
 		[NoScaleOffset] _DetailMask ("Detail Mask", 2D) = "white" {}
+		_DetailTex ("Detail Albedo", 2D) = "gray" {}
+		[NoScaleOffset] _DetailNormalMap ("Detail Normals", 2D) = "bump" {}
+		_DetailBumpScale ("Detail Bump Scale", Float) = 1
 
 		_AlphaCutoff ("Alpha Cutoff", Range(0, 1)) = 0.5
 
@@ -77,7 +76,7 @@
 				"LightMode" = "ForwardAdd"
 			}
 
-			Blend [_SrcBlend] [_DstBlend]
+			Blend [_SrcBlend] One
 			ZWrite Off
 
 			CGPROGRAM
@@ -87,7 +86,6 @@
 			#pragma shader_feature _ _RENDERING_CUTOUT _RENDERING_FADE _RENDERING_TRANSPARENT
 			#pragma shader_feature _METALLIC_MAP
 			#pragma shader_feature _ _SMOOTHNESS_ALBEDO _SMOOTHNESS_METALLIC
-			#pragma shader_feature _EMISSION_MAP
 			#pragma shader_feature _NORMAL_MAP
 			#pragma shader_feature _DETAIL_MASK
 			#pragma shader_feature _DETAIL_ALBEDO_MAP
@@ -103,24 +101,28 @@
 			ENDCG
 		}
 
-		// Pass {
-		// 	Tags {
-		// 		"LightMode" = "ShadowCaster"
-		// 	}
+		Pass {
+			Tags {
+				"LightMode" = "ShadowCaster"
+			}
 
-		// 	CGPROGRAM
+			CGPROGRAM
 
-		// 	#pragma target 3.0
+			#pragma target 3.0
 
-		// 	#pragma multi_compile_shadowcaster
+			#pragma shader_feature _SEMITRANSPARENT_SHADOWS
+			#pragma shader_feature _ _RENDERING_CUTOUT _RENDERING_FADE _RENDERING_TRANSPARENT
+			#pragma shader_feature _SMOOTHNESS_ALBEDO
 
-		// 	#pragma vertex MyShadowVertexProgram
-		// 	#pragma fragment MyShadowFragmentProgram
+			#pragma multi_compile_shadowcaster
 
-		// 	#include "My Shadows.cginc"
+			#pragma vertex MyShadowVertexProgram
+			#pragma fragment MyShadowFragmentProgram
 
-		// 	ENDCG
-		// }
+			#include "My Shadows.cginc"
+
+			ENDCG
+		}
 	}
 
 	CustomEditor "TransparencyShaderGUI"
